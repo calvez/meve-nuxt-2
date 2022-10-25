@@ -1,0 +1,37 @@
+name: Chromatic
+
+on:
+  pull_request:
+    branches: main
+
+  workflow_dispatch:
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm i --legacy-peer-deps
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@v1
+        with:
+          token: ${{ github.token }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: /
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+          skip: 'dependabot/**'
